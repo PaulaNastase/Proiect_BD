@@ -1,0 +1,540 @@
+DROP TABLE ORASE CASCADE CONSTRAINTS;
+DROP TABLE JUDETE CASCADE CONSTRAINTS;
+DROP TABLE COMENZI CASCADE CONSTRAINTS;
+DROP TABLE FURNIZORI CASCADE CONSTRAINTS;
+DROP TABLE STOCURI_FURNIZORI CASCADE CONSTRAINTS;
+DROP TABLE NUMERE_COMENZI CASCADE CONSTRAINTS;
+DROP TABLE ANGAJATI CASCADE CONSTRAINTS;
+DROP TABLE ADRESE_CLIENTI CASCADE CONSTRAINTS;
+DROP TABLE CLIENTI CASCADE CONSTRAINTS;
+DROP TABLE PRODUSE CASCADE CONSTRAINTS;
+DROP TABLE TIPURI_PRODUSE CASCADE CONSTRAINTS;
+DROP TABLE LIBRARII CASCADE CONSTRAINTS;
+
+create table JUDETE
+(
+  id_judet NUMBER(2),
+  denumire_judet VARCHAR2(20)
+);
+
+alter table JUDETE
+add constraint ID_JUDET_PK primary key (ID_JUDET);
+alter table JUDETE
+add constraint JUDETE_ID_JUDET_NN check ("ID_JUDET" IS NOT NULL);
+
+create table ORASE
+( 
+  id_oras NUMBER(4),
+  denumire_oras VARCHAR2(20),
+  cod_postal NUMBER(6),
+  id_judet NUMBER(2)
+);
+
+alter table ORASE
+add constraint ID_ORAS_PK primary key (ID_ORAS);
+alter table ORASE
+add constraint ID_ORAS_NN check ("ID_ORAS" IS NOT NULL);
+alter table ORASE
+add constraint JUDETE_JUDET_FK foreign key (ID_JUDET)
+references JUDETE(ID_JUDET);
+
+create table TIPURI_PRODUSE
+(
+  id_tip NUMBER(4),
+  denumire_produs VARCHAR2(30), 
+  descriere VARCHAR2(500),
+  pret NUMBER(3)
+);
+
+alter table TIPURI_PRODUSE
+add constraint ID_TIP_PK primary key (ID_TIP);
+alter table TIPURI_PRODUSE
+add constraint TIP_ID_TIP_NN check ("ID_TIP" IS NOT NULL);
+alter table TIPURI_PRODUSE
+add constraint TIP_DENUMIRE_TIP_NN check ("DENUMIRE_PRODUS" IS NOT NULL);
+
+create table LIBRARII
+( id_librarie NUMBER(3),
+  adresa VARCHAR2(200),
+  id_judet NUMBER(2)
+);
+
+alter table LIBRARII
+add constraint ID_LIBRARIE_PK primary key (ID_LIBRARIE);
+alter table LIBRARII
+add constraint LIBRARII_ID_JUDET_FK foreign key (ID_JUDET)
+references JUDETE (ID_JUDET);
+alter table LIBRARII
+add constraint LIBRARII_ID_LIBRARIE_NN check ("ID_LIBRARIE" IS NOT NULL);
+
+create table ANGAJATI
+( id_angajat NUMBER(4),
+  prenume VARCHAR2(25),
+  nume VARCHAR2(25),
+  email VARCHAR2(30),
+  telefon VARCHAR2(20),
+  data_angajare DATE,
+  salariu NUMBER(8,2),
+  comision NUMBER(2,2),
+  id_librarie NUMBER(3)
+);
+
+alter table ANGAJATI
+add constraint ID_ANGAJAT_PK primary key (ID_ANGAJAT);
+alter table ANGAJATI
+add constraint ANG_EMAIL_UK unique (EMAIL);
+alter table ANGAJATI
+add constraint DATA_ANG_NN check ("DATA_ANGAJARE" IS NOT NULL);
+alter table ANGAJATI
+add constraint ANG_EMAIL_NN check ("EMAIL" IS NOT NULL);
+alter table ANGAJATI
+add constraint ANG_NUME_NN check ("NUME" IS NOT NULL);
+alter table ANGAJATI
+add constraint SALARIU_MIN check (SALARIU > 0);
+alter table ANGAJATI
+add constraint ANGAJATI_ID_LIBRARIE_FK foreign key (ID_LIBRARIE)
+references LIBRARII (ID_LIBRARIE);
+alter table ANGAJATI
+add constraint ANGAJATI_ID_LIBRARIE_NN check ("ID_LIBRARIE" IS NOT NULL);
+
+create table PRODUSE
+( id_produs NUMBER(5),
+  denumire_produs VARCHAR2(50),
+  id_tip NUMBER(4),
+  id_librarie NUMBER(3)
+);
+
+alter table PRODUSE
+add constraint ID_PRODUS_PK primary key (ID_PRODUS);
+alter table PRODUSE
+add constraint PRODUSE_ID_PRODUS_NN check ("ID_PRODUS" IS NOT NULL);
+alter table PRODUSE
+add constraint PRODUSE_ID_TIP_FK foreign key (ID_TIP) 
+references TIPURI_PRODUSE (ID_TIP);
+alter table PRODUSE
+add constraint PRODUSE_ID_TIP_NN check ("ID_TIP" IS NOT NULL);
+alter table PRODUSE
+add constraint PRODUSE_ID_LIBRARIE_FK foreign key (ID_LIBRARIE)
+references LIBRARII (ID_LIBRARIE);
+alter table PRODUSE
+add constraint PRODUSE_ID_LIBRARIE_NN check ("ID_LIBRARIE" IS NOT NULL);
+
+create table FURNIZORI
+( id_furnizor NUMBER(2),
+  nume_furnizor VARCHAR2(50),
+  adresa_furnizor VARCHAR2(200),
+  email_furnizor VARCHAR2(25),
+  telefon_furnizor VARCHAR2(20)
+);
+
+alter table FURNIZORI
+add constraint ID_FURNIZOR_PK primary key (ID_FURNIZOR);
+alter table FURNIZORI
+add constraint FURNIZORI_ID_FURNIZOR_NN check ("ID_FURNIZOR" IS NOT NULL);
+alter table FURNIZORI
+add constraint FURNIZORI_NUME_FURNIZOR_NN check ("NUME_FURNIZOR" IS NOT NULL);
+
+create table STOCURI_FURNIZORI
+( id_furnizor NUMBER(2),
+  id_produs NUMBER(5),
+  cantitate_disponibila NUMBER(4)
+);
+
+alter table STOCURI_FURNIZORI
+add constraint FURN_PROD_PK primary key (ID_FURNIZOR, ID_PRODUS);
+alter table STOCURI_FURNIZORI
+add constraint SF_ID_FURNIZOR_FK foreign key (ID_FURNIZOR)
+references FURNIZORI (ID_FURNIZOR);
+alter table STOCURI_FURNIZORI
+add constraint SF_ID_FURNIZOR_NN check ("ID_FURNIZOR" IS NOT NULL);
+alter table STOCURI_FURNIZORI
+add constraint SF_ID_PRODUS_FK foreign key (ID_PRODUS)
+references PRODUSE (ID_PRODUS);
+alter table STOCURI_FURNIZORI
+add constraint SF_ID_PRODUS_NN check ("ID_PRODUS" IS NOT NULL);
+
+create table ADRESE_CLIENTI
+( id_adresa NUMBER(4),
+  adresa VARCHAR2(200),
+  id_oras NUMBER(4)
+);
+
+alter table ADRESE_CLIENTI
+add constraint ID_ADRESA_PK primary key (ID_ADRESA);
+alter table ADRESE_CLIENTI
+add constraint ADRESE_ID_ADRESA_NN check ("ID_ADRESA" IS NOT NULL);
+alter table ADRESE_CLIENTI
+add constraint ADRESE_ID_ORAS_FK foreign key (ID_ORAS)
+references ORASE (ID_ORAS);
+alter table ADRESE_CLIENTI
+add constraint ADRESE_ID_ORAS_NN check ("ID_ORAS" IS NOT NULL);
+
+
+create table CLIENTI
+(
+   id_client NUMBER(5),
+   prenume_client VARCHAR2(25),
+   nume_client VARCHAR2(25),
+   telefon_client VARCHAR2(20),
+   email_client VARCHAR2(30),
+   sex VARCHAR2(1),
+   data_nastere DATE,
+   stare_civila VARCHAR2(20),
+   id_adresa NUMBER(4)
+);
+
+alter table CLIENTI
+add constraint ID_CLIENT_PK primary key (ID_CLIENT);
+alter table CLIENTI
+add constraint CLIENTI_ID_CLIENT_NN check ("ID_CLIENT" IS NOT NULL);
+alter table CLIENTI
+add constraint CLIENTI_ID_ADRESA_FK foreign key (ID_ADRESA)
+references ADRESE_CLIENTI (ID_ADRESA);
+alter table CLIENTI
+add constraint CLIENTI_NUME_CLIENT_NN check ("NUME_CLIENT" IS NOT NULL);
+alter table CLIENTI	
+add constraint CLIENTI_PRENUME_CLIENT_NN check ("PRENUME_CLIENT" IS NOT NULL);
+
+create table COMENZI
+( id_comanda NUMBER(3),
+  data TIMESTAMP(6) WITH LOCAL TIME ZONE,
+  modalitate VARCHAR2(10),
+  id_angajat NUMBER(4),
+  id_client NUMBER(5)
+);
+
+alter table COMENZI
+add constraint ID_COMANDA_PK primary key (ID_COMANDA);
+alter table COMENZI
+add constraint COMENZI_ID_COMANDA_NN check ("ID_COMANDA" IS NOT NULL);
+alter table COMENZI
+add constraint COMENZI_ID_ANGAJAT_FK foreign key (ID_ANGAJAT)
+references ANGAJATI (ID_ANGAJAT);
+alter table COMENZI
+add constraint COMENZI_ID_CLIENT_FK foreign key (ID_CLIENT)
+references CLIENTI (ID_CLIENT);
+alter table COMENZI
+add constraint COMENZI_ID_ANGAJAT_NN check ("ID_ANGAJAT" IS NOT NULL);
+alter table COMENZI
+add constraint COMENZI_ID_CLIENT_NN check ("ID_CLIENT" IS NOT NULL);
+alter table COMENZI
+add constraint COMENZI_DATA_COMANDA_NN check ("DATA" IS NOT NULL);
+alter table COMENZI
+add constraint COMENZI_MODALITATE check (MODALITATE in ('in magazin', 'online'));
+
+create table NUMERE_COMENZI
+( 
+  id_comanda NUMBER(3),
+  id_produs NUMBER(5),
+  pret NUMBER(3),
+  cantitate NUMBER(3)
+);
+
+alter table NUMERE_COMENZI
+add constraint COM_PROD_PK primary key (ID_COMANDA, ID_PRODUS);
+alter table NUMERE_COMENZI
+add constraint NRCOM_ID_COMANDA_FK foreign key (ID_COMANDA)
+references COMENZI (ID_COMANDA);
+alter table NUMERE_COMENZI
+add constraint NRCOM_ID_PRODUS_FK foreign key (ID_PRODUS)
+references PRODUSE (ID_PRODUS);
+
+insert into JUDETE (id_judet, denumire_judet)
+values (51, 'Brasov');
+insert into JUDETE (id_judet, denumire_judet)
+values (52, 'Prahova');
+insert into JUDETE (id_judet, denumire_judet)
+values (53, 'Constanta');
+insert into JUDETE (id_judet, denumire_judet)
+values (54, 'Sibiu');
+insert into JUDETE (id_judet, denumire_judet)
+values (55, 'Cluj');
+insert into JUDETE (id_judet, denumire_judet)
+values (56, 'Arad');
+insert into JUDETE (id_judet, denumire_judet)
+values (57, 'Bihor');
+insert into JUDETE (id_judet, denumire_judet)
+values (58, 'Dolj');
+insert into JUDETE (id_judet, denumire_judet)
+values (59, 'Teleorman');
+insert into JUDETE (id_judet, denumire_judet)
+values (60, 'Timis');
+insert into JUDETE (id_judet, denumire_judet)
+values (61, 'Iasi');
+insert into JUDETE (id_judet, denumire_judet)
+values (62, 'Bucuresti');
+
+insert into ORASE (id_oras, denumire_oras, cod_postal, id_judet)
+values (1001, 'Campina', 105600, 52);
+insert into ORASE (id_oras, denumire_oras, cod_postal, id_judet)
+values (1002, 'Ploiesti', 100051, 52);
+insert into ORASE (id_oras, denumire_oras, cod_postal, id_judet)
+values (1003, 'Bucuresti', 010001, 62);
+insert into ORASE (id_oras, denumire_oras, cod_postal, id_judet)
+values (1004, 'Brasov', 500001, 51);
+insert into ORASE (id_oras, denumire_oras, cod_postal, id_judet)
+values (1005, 'Iasi', 700028, 61);
+insert into ORASE (id_oras, denumire_oras, cod_postal, id_judet)
+values (1006, 'Sinaia', 106100, 52);
+insert into ORASE (id_oras, denumire_oras, cod_postal, id_judet)
+values (1007, 'Constanta', 123444, 53);
+insert into ORASE (id_oras, denumire_oras, cod_postal, id_judet)
+values (1008, 'Turda', 401001, 55);
+insert into ORASE (id_oras, denumire_oras, cod_postal, id_judet)
+values (1009, 'Rasnov', 505400, 51);
+insert into ORASE (id_oras, denumire_oras, cod_postal, id_judet)
+values (1010, 'Cluj-Napoca', 400000, 55);
+insert into ORASE (id_oras, denumire_oras, cod_postal, id_judet)
+values (1011, 'Oradea', 410000, 57);
+insert into ORASE (id_oras, denumire_oras, cod_postal, id_judet)
+values (1012, 'Bran', 507027, 51);
+
+insert into TIPURI_PRODUSE (id_tip, denumire_produs, descriere, pret)
+values (2001, 'Carrie', 'Carte horror si thriller, scrisa de Stephen King', 64);
+insert into TIPURI_PRODUSE (id_tip, denumire_produs, descriere, pret)
+values (2002, 'Fata din tren', 'Carte thriller, scrisa de Paula Hawkins', 49);
+insert into TIPURI_PRODUSE (id_tip, denumire_produs, descriere, pret)
+values (2003, 'Cum sa opresti timpul', 'Carte contemporana, scrisa de Matt Haig', 60);
+insert into TIPURI_PRODUSE (id_tip, denumire_produs, descriere, pret)
+values (2004, 'Eu si Marilyn', 'Carte de tip fictiune istorica, scrisa de Ji-Min Lee', 27);
+insert into TIPURI_PRODUSE (id_tip, denumire_produs, descriere, pret)
+values (2005, 'Anna Karenina', 'Carte clasica, scrisa de Lev Tolstoi', 35);
+insert into TIPURI_PRODUSE (id_tip, denumire_produs, descriere, pret)
+values (2006, 'Verity', 'Carte thriller, scrisa de Colleen Hoover', 57);
+insert into TIPURI_PRODUSE (id_tip, denumire_produs, descriere, pret)
+values (2007, 'Cu sange rece', 'Carte de non-fictiune, scrisa de Truman Capote', 44);
+insert into TIPURI_PRODUSE (id_tip, denumire_produs, descriere, pret)
+values (2008, 'Carnet de buzunar', 'Carnet Moleskine Sakura de buzunar, cu coperta cartonata, cu paginile liniate', 98);
+insert into TIPURI_PRODUSE (id_tip, denumire_produs, descriere, pret)
+values (2009, 'Set pixuri', 'Set 10 linere - Fineliner Stabilo Point 88 0.4mm', 53);
+insert into TIPURI_PRODUSE (id_tip, denumire_produs, descriere, pret)
+values (2010, 'Ceai', 'Contine rooibos si are aroma de vanilie', 24);
+insert into TIPURI_PRODUSE (id_tip, denumire_produs, descriere, pret)
+values (2011, 'Zile de Craciun', 'Carte de fictiune, scrisa de Jeanette Winterson', 55);
+insert into TIPURI_PRODUSE (id_tip, denumire_produs, descriere, pret)
+values (2012, 'Pacienta tacuta', 'Carte thriller, scrisa de Alex Michaelides', 50);
+
+insert into LIBRARII (id_librarie, adresa, id_judet)
+values(101, 'Strada Lipscani, numarul 50, sectorul 2, Bucuresti', 62);
+insert into LIBRARII (id_librarie, adresa, id_judet)
+values(102, 'Strada Eruptiei, numarul 43, Campina, Prahova', 52);
+insert into LIBRARII (id_librarie, adresa, id_judet)
+values(103, 'Strada Calomfirescu, numarul 10, Ploiesti, Prahova', 52);
+insert into LIBRARII (id_librarie, adresa, id_judet)
+values(104, 'Strada Avram Iancu, numarul 15, Cluj-Napoca, Cluj', 55);
+insert into LIBRARII (id_librarie, adresa, id_judet)
+values(105, 'Strada Alexandru Vaida, numarul 80, Turda, Cluj', 55);
+insert into LIBRARII (id_librarie, adresa, id_judet)
+values(106, 'Strada Renasterii, numarul 7, Craiova, Dolj', 58);
+insert into LIBRARII (id_librarie, adresa, id_judet)
+values(107, 'Strada Orastie, numarul 11, Hateg, Sibiu', 54);
+insert into LIBRARII (id_librarie, adresa, id_judet)
+values(108, 'Strada Lunga, numarul 88, Brasov', 51);
+insert into LIBRARII (id_librarie, adresa, id_judet)
+values(109, 'Strada Minciunilor, numarul 32, Bran, Brasov', 51);
+insert into LIBRARII (id_librarie, adresa, id_judet)
+values(110, 'Strada Sperantei, numarul 12, Oradea, Bihor', 57);
+insert into LIBRARII (id_librarie, adresa, id_judet)
+values(111, 'Strada Garii, numarul 43, Iasi', 61);
+insert into LIBRARII (id_librarie, adresa, id_judet)
+values(112, 'Strada Palas, numarul 80, Iasi', 61);
+
+insert into ANGAJATI (id_angajat, prenume, nume, email, telefon, data_angajare, salariu, comision, id_librarie)
+values (3001, 'Ana', 'Popescu', 'popescu_ana@gmail.com', 0751902309, to_date('15/01/2022', 'dd/mm/yyyy'), 5000, .3, 112);
+insert into ANGAJATI (id_angajat, prenume, nume, email, telefon, data_angajare, salariu, comision, id_librarie)
+values (3002, 'Daniela', 'Ionescu', 'ionescu.dana@yahoo.com', 0798142367, to_date('20/11/2021', 'dd/mm/yyyy'), 5500, .1, 110);
+insert into ANGAJATI (id_angajat, prenume, nume, email, telefon, data_angajare, salariu, comision, id_librarie)
+values (3003, 'Radu', 'Ioan', 'radu_ioan@yahoo.ro', 0786290321, to_date('06/08/2019', 'dd/mm/yyyy'), 6000, .2, 101);
+insert into ANGAJATI (id_angajat, prenume, nume, email, telefon, data_angajare, salariu, comision, id_librarie)
+values (3004, 'Elena', 'Dumitrescu', 'elena_dumi@gmail.com', 0787340916, to_date('18/06/2021', 'dd/mm/yyyy'), 5800, null, 105);
+insert into ANGAJATI (id_angajat, prenume, nume, email, telefon, data_angajare, salariu, comision, id_librarie)
+values (3005, 'Andrei', 'Vasilescu', 'vasilescu.andrei@gmail.com', 0786549012, to_date('09/03/2018', 'dd/mm/yyyy'), 7000, .2, 101);
+insert into ANGAJATI (id_angajat, prenume, nume, email, telefon, data_angajare, salariu, comision, id_librarie)
+values (3006, 'Adrian', 'Stanescu', 'stanescu.adi@yahoo.ro', 0750915620, to_date('15/10/2015', 'dd/mm/yyyy'), 7800, .25, 110);
+insert into ANGAJATI (id_angajat, prenume, nume, email, telefon, data_angajare, salariu, comision, id_librarie)
+values (3007, 'Mihaela', 'Marinescu', 'marinescu_mihaela@gmail.com', 0728450832, to_date('28/02/2022', 'dd/mm/yyyy'), 5500, .3, 108);
+insert into ANGAJATI (id_angajat, prenume, nume, email, telefon, data_angajare, salariu, comision, id_librarie)
+values (3008, 'Alexandru', 'Nistor', 'alex_nistor@gmail.com', 0782510374, to_date('15/11/2017', 'dd/mm/yyyy'), 6000, .2, 104);
+insert into ANGAJATI (id_angajat, prenume, nume, email, telefon, data_angajare, salariu, comision, id_librarie)
+values (3009, 'Gabriela', 'Stan', 'stan.gabriela@yahoo.ro', 0762569041, to_date('23/09/2021', 'dd/mm/yyyy'), 5800, .2, 107);
+insert into ANGAJATI (id_angajat, prenume, nume, email, telefon, data_angajare, salariu, comision, id_librarie)
+values (3010, 'Andreea', 'Vlad', 'vlad.andreea@gmail.com', 0782950892, to_date('07/03/2022', 'dd/mm/yyyy'), 6100, null, 105);
+insert into ANGAJATI (id_angajat, prenume, nume, email, telefon, data_angajare, salariu, comision, id_librarie)
+values (3011, 'Silviu', 'Tudor', 'tudor.silviu@gmail.ro', 0731925789, to_date('16/04/2021', 'dd/mm/yyyy'), 5900, null, 107);
+insert into ANGAJATI (id_angajat, prenume, nume, email, telefon, data_angajare, salariu, comision, id_librarie)
+values (3012, 'Cristina', 'Iacob', 'iacob_cristina@yahoo.ro', 0782905176, to_date('14/08/2023', 'dd/mm/yyyy'), 4500, null, 106);
+
+insert into PRODUSE (id_produs, denumire_produs, id_tip, id_librarie)
+values (10001, 'Carte', 2001, 107);
+insert into PRODUSE (id_produs, denumire_produs, id_tip, id_librarie)
+values (10002, 'Ceai', 2010, 109);
+insert into PRODUSE (id_produs, denumire_produs, id_tip, id_librarie)
+values (10003, 'Pixuri', 2009, 101);
+insert into PRODUSE (id_produs, denumire_produs, id_tip, id_librarie)
+values (10004, 'Carte', 2004, 103);
+insert into PRODUSE (id_produs, denumire_produs, id_tip, id_librarie)
+values (10005, 'Carte', 2004, 105);
+insert into PRODUSE (id_produs, denumire_produs, id_tip, id_librarie)
+values (10006, 'Carte', 2005, 107);
+insert into PRODUSE (id_produs, denumire_produs, id_tip, id_librarie)
+values (10007, 'Ceai', 2010, 110);
+insert into PRODUSE (id_produs, denumire_produs, id_tip, id_librarie)
+values (10008, 'Agenda', 2008, 103);
+insert into PRODUSE (id_produs, denumire_produs, id_tip, id_librarie)
+values (10009, 'Carte', 2005, 112);
+insert into PRODUSE (id_produs, denumire_produs, id_tip, id_librarie)
+values (10010, 'Pixuri', 2009, 108);
+insert into PRODUSE (id_produs, denumire_produs, id_tip, id_librarie)
+values (10011, 'Carte', 2001, 102);
+insert into PRODUSE (id_produs, denumire_produs, id_tip, id_librarie)
+values (10012, 'Carte', 2003, 105);
+
+insert into FURNIZORI (id_furnizor, nume_furnizor, adresa_furnizor, email_furnizor, telefon_furnizor)
+values(11, 'Editura Nemira', 'Strada Marului, numarul 100, sector 2, Bucuresti', 'ed.nemira@yahoo.com', 0735821763);
+insert into FURNIZORI (id_furnizor, nume_furnizor, adresa_furnizor, email_furnizor, telefon_furnizor)
+values(12, 'Editura RAO', 'Aleea Rozelor, numarul 15, sector 5, Bucuresti', 'RAO@gmail.com', 0712468532);
+insert into FURNIZORI (id_furnizor, nume_furnizor, adresa_furnizor, email_furnizor, telefon_furnizor)
+values(13, 'Editura Trei', 'Strada Crizantemei, numarul 9, Ploiesti, Prahova', 'ed3@gmail.com', 0747033671);
+insert into FURNIZORI (id_furnizor, nume_furnizor, adresa_furnizor, email_furnizor, telefon_furnizor)
+values(14, 'Editura Epica', 'Strada Martisor, numarul 54, sector 6, Bucuresti', 'epica@yahoo.ro', 0721517201);
+insert into FURNIZORI (id_furnizor, nume_furnizor, adresa_furnizor, email_furnizor, telefon_furnizor)
+values(15, 'Editura Litera', 'Strada Mihai Eminescu, numarul 32, Brasov', 'edlitera@gmail.com', 0793641056);
+insert into FURNIZORI (id_furnizor, nume_furnizor, adresa_furnizor, email_furnizor, telefon_furnizor)
+values(16, 'Editura ART', 'Soseaua Salaj, numarul 40, sector 2, Bucuresti', 'art12@yahoo.com', 0764115037);
+insert into FURNIZORI (id_furnizor, nume_furnizor, adresa_furnizor, email_furnizor, telefon_furnizor)
+values(17, 'Editura Humanitas', 'Strada Zizin, numarul 65, Pitesti, Arges', 'edhum@gmail.com', 0713051913);
+insert into FURNIZORI (id_furnizor, nume_furnizor, adresa_furnizor, email_furnizor, telefon_furnizor)
+values(18, 'Editura Bookzone', 'Strada Liviu Rebreanu, numarul 17, sector 4, Bucuresti', 'bookzone@yahoo.com', 0746123978);
+insert into FURNIZORI (id_furnizor, nume_furnizor, adresa_furnizor, email_furnizor, telefon_furnizor)
+values(19, 'Moleskine', 'Strada Viilor, numarul 21, Medgidia, Constanta', 'molesk12@yahoo.com', 0792740725);
+insert into FURNIZORI (id_furnizor, nume_furnizor, adresa_furnizor, email_furnizor, telefon_furnizor)
+values(20, 'Stabilo', 'Strada Spiru Haret, numarul 23, sectorul 1, Bucuresti', 'stabilo_3@yahoo.com', 0753094127);
+insert into FURNIZORI (id_furnizor, nume_furnizor, adresa_furnizor, email_furnizor, telefon_furnizor)
+values(21, 'Casa de Ceai', 'Strada Chibzuintei, numarul 19, Brebu, Prahova', 'casa_de_ceai@gmail.com', 0741513702);
+insert into FURNIZORI (id_furnizor, nume_furnizor, adresa_furnizor, email_furnizor, telefon_furnizor)
+values(22, 'VIZ Media', 'Strada Mihail Kogalniceanu, numarul 62, sector 3, Bucuresti', 'viz.media@yahoo.com', 0720431065);
+
+insert into STOCURI_FURNIZORI (id_furnizor, id_produs, cantitate_disponibila)
+values (20, 10003, 200);
+insert into STOCURI_FURNIZORI (id_furnizor, id_produs, cantitate_disponibila)
+values (19, 10008, 500);
+insert into STOCURI_FURNIZORI (id_furnizor, id_produs, cantitate_disponibila)
+values (21, 10007, 150);
+insert into STOCURI_FURNIZORI (id_furnizor, id_produs, cantitate_disponibila)
+values (11, 10012, 270);
+insert into STOCURI_FURNIZORI (id_furnizor, id_produs, cantitate_disponibila)
+values (17, 10005, 540);
+insert into STOCURI_FURNIZORI (id_furnizor, id_produs, cantitate_disponibila)
+values (20, 10010, 320);
+insert into STOCURI_FURNIZORI (id_furnizor, id_produs, cantitate_disponibila)
+values (11, 10011, 450);
+insert into STOCURI_FURNIZORI (id_furnizor, id_produs, cantitate_disponibila)
+values (11, 10006, 200);
+insert into STOCURI_FURNIZORI (id_furnizor, id_produs, cantitate_disponibila)
+values (15, 10006, 120);
+insert into STOCURI_FURNIZORI (id_furnizor, id_produs, cantitate_disponibila)
+values (11, 10005, 570);
+insert into STOCURI_FURNIZORI (id_furnizor, id_produs, cantitate_disponibila)
+values (17, 10004, 660);
+insert into STOCURI_FURNIZORI (id_furnizor, id_produs, cantitate_disponibila)
+values (17, 10006, 700);
+
+insert into ADRESE_CLIENTI (id_adresa, adresa, id_oras)
+values (4001, 'Strada Gandului, numarul 3, Iasi', 1005);
+insert into ADRESE_CLIENTI (id_adresa, adresa, id_oras)
+values (4002, 'Bulevardul Carol I, numarul 1, bloc B2, apartament 16, Campina, Prahova', 1001);
+insert into ADRESE_CLIENTI (id_adresa, adresa, id_oras)
+values (4003, 'Strada Semenicului, numarul 8, bloc P1, apartament 4, Oradea, Bihor', 1011);
+insert into ADRESE_CLIENTI (id_adresa, adresa, id_oras)
+values (4004, 'Strada Centrala, numarul 20, Ploiesti, Prahova', 1002);
+insert into ADRESE_CLIENTI (id_adresa, adresa, id_oras)
+values (4005, 'Strada Sforii, numarul 14, Iasi', 1005);
+insert into ADRESE_CLIENTI (id_adresa, adresa, id_oras)
+values (4006, 'Strada Sfatului, numarul 68, bloc C3, apartament 19, sector 2, Bucuresti', 1003);
+insert into ADRESE_CLIENTI (id_adresa, adresa, id_oras)
+values (4007, 'Strada Ionescu, numarul 21, Oradea, Bihor', 1011);
+insert into ADRESE_CLIENTI (id_adresa, adresa, id_oras)
+values (4008, 'Strada Macului, numarul 31, bloc B12, apartament 15, Bran, Brasov', 1012);
+insert into ADRESE_CLIENTI (id_adresa, adresa, id_oras)
+values (4009, 'Strada Primaverii, numarul 33, Brasov', 1004);
+insert into ADRESE_CLIENTI (id_adresa, adresa, id_oras)
+values (4010, 'Bulevardul Culturii, numarul 14, blocul A1, apartament 17, Constanta', 1007);
+insert into ADRESE_CLIENTI (id_adresa, adresa, id_oras)
+values (4011, 'Strada Islaz, numarul 40, Ploiesti, Prahova', 1002);
+insert into ADRESE_CLIENTI (id_adresa, adresa, id_oras)
+values (4012, 'Strada Fantanilor, numarul 43, bloc B13, apartament 6, Iasi', 1005);
+
+insert into CLIENTI (id_client, prenume_client, nume_client, telefon_client, email_client, sex, data_nastere, stare_civila, id_adresa)
+values (20001, 'Ion', 'Popescu', 0712345678, ' ion.popescu@email.com', 'M', to_date('15/05/1980', 'dd/mm/yyyy'), 'Casatorit', 4005);
+insert into CLIENTI (id_client, prenume_client, nume_client, telefon_client, email_client, sex, data_nastere, stare_civila, id_adresa)
+values (20002, 'Maria', 'Ionescu', 0723456789, 'mariai@yahoo.ro', 'F', to_date('20/08/1992', 'dd/mm/yyyy'), 'Necasatorita', 4007);
+insert into CLIENTI (id_client, prenume_client, nume_client, telefon_client, email_client, sex, data_nastere, stare_civila, id_adresa)
+values (20003, 'Andrei', 'Radu', 0734567890, 'radu_andrei@gmail.com', 'M', to_date('10/03/1985', 'dd/mm/yyyy'), 'Vaduv', 4011);
+insert into CLIENTI (id_client, prenume_client, nume_client, telefon_client, email_client, sex, data_nastere, stare_civila, id_adresa)
+values (20004, 'Ana', 'Dumitrescu', 0756789012, 'anad@yahoo.com', 'F', to_date('03/12/1998', 'dd/mm/yyyy'), 'Necasatorita', 4012);
+insert into CLIENTI (id_client, prenume_client, nume_client, telefon_client, email_client, sex, data_nastere, stare_civila, id_adresa)
+values (20005, 'Adrian', 'Stanescu', 0720981273, 'stanescu.adrian@gmail.com', 'M', to_date('25/06/1975', 'dd/mm/yyyy'), 'Divortat', 4007);
+insert into CLIENTI (id_client, prenume_client, nume_client, telefon_client, email_client, sex, data_nastere, stare_civila, id_adresa)
+values (20006, 'Elena', 'Vasilescu', 0787324165, 'vasilescu_elena@yahoo.ro', 'F', to_date('12/10/2000', 'dd/mm/yyyy'), 'Necasatorita', 4006);
+insert into CLIENTI (id_client, prenume_client, nume_client, telefon_client, email_client, sex, data_nastere, stare_civila, id_adresa)
+values (20007, 'Costin', 'Iftimie', 0701928456, 'costin.iftimie@gmail.com', 'M', to_date('08/02/1995', 'dd/mm/yyyy'), 'Necasatorit', 4009);
+insert into CLIENTI (id_client, prenume_client, nume_client, telefon_client, email_client, sex, data_nastere, stare_civila, id_adresa)
+values (20008, 'Roxana', 'Radulescu', 0798213487, 'radulescu_rox@yahoo.com', 'F', to_date('12/11/1999', 'dd/mm/yyyy'), 'Necasatorita', 4003);
+insert into CLIENTI (id_client, prenume_client, nume_client, telefon_client, email_client, sex, data_nastere, stare_civila, id_adresa)
+values (20009, 'Vasile', 'Gheorghe', 0726510987, 'gheorghe.vasile@yahoo.com', 'M', to_date('22/04/1978', 'dd/mm/yyyy'), 'Casatorit', 4005);
+insert into CLIENTI (id_client, prenume_client, nume_client, telefon_client, email_client, sex, data_nastere, stare_civila, id_adresa)
+values (20010, 'Larisa', 'Mihai', 0791827309, 'larisam@gmail.com', 'F', to_date('15/07/2002', 'dd/mm/yyyy'), 'Necasatorita', 4001);
+insert into CLIENTI (id_client, prenume_client, nume_client, telefon_client, email_client, sex, data_nastere, stare_civila, id_adresa)
+values (20011, 'Daniel', 'Popa', 0750293847, 'popa_daniel@gmail.com', 'M', to_date('10/05/1986', 'dd/mm/yyyy'), 'Divortat', 4002);
+insert into CLIENTI (id_client, prenume_client, nume_client, telefon_client, email_client, sex, data_nastere, stare_civila, id_adresa)
+values (20012, 'Ioana', 'Marin', 0782106289, 'marin.ioana@yahoo.ro', 'F', to_date('30/01/1993', 'dd/mm/yyyy'), 'Necasatorita', 4008);
+
+insert into COMENZI (id_comanda, data, modalitate, id_angajat, id_client)
+values (201, to_timestamp('03/04/2019 09:10:53.000000', 'dd/mm/yyyy hh24:mi:ss.ff'), 'in magazin', 3007, 20001);
+insert into COMENZI (id_comanda, data, modalitate, id_angajat, id_client)
+values (202, to_timestamp('12/10/2022 11:19:43.000000', 'dd/mm/yyyy hh24:mi:ss.ff'), 'online', 3009, 20007);
+insert into COMENZI (id_comanda, data, modalitate, id_angajat, id_client)
+values (203, to_timestamp('02/12/2023 17:45:18.000000', 'dd/mm/yyyy hh24:mi:ss.ff'), 'online', 3001, 20009);
+insert into COMENZI (id_comanda, data, modalitate, id_angajat, id_client)
+values (204, to_timestamp('09/02/2020 19:39:03.000000', 'dd/mm/yyyy hh24:mi:ss.ff'), 'in magazin', 3007, 20001);
+insert into COMENZI (id_comanda, data, modalitate, id_angajat, id_client)
+values (205, to_timestamp('10/05/2021 14:04:18.000000', 'dd/mm/yyyy hh24:mi:ss.ff'), 'in magazin', 3002, 20012);
+insert into COMENZI (id_comanda, data, modalitate, id_angajat, id_client)
+values (206, to_timestamp('19/08/2017 13:21:56.000000', 'dd/mm/yyyy hh24:mi:ss.ff'), 'online', 3004, 20011);
+insert into COMENZI (id_comanda, data, modalitate, id_angajat, id_client)
+values (207, to_timestamp('29/11/2019 18:51:17.000000', 'dd/mm/yyyy hh24:mi:ss.ff'), 'in magazin', 3012, 20007);
+insert into COMENZI (id_comanda, data, modalitate, id_angajat, id_client)
+values (208, to_timestamp('20/10/2023 16:25:04.000000', 'dd/mm/yyyy hh24:mi:ss.ff'), 'online', 3010, 20005);
+insert into COMENZI (id_comanda, data, modalitate, id_angajat, id_client)
+values (209, to_timestamp('13/07/2016 11:20:34.000000', 'dd/mm/yyyy hh24:mi:ss.ff'), 'in magazin', 3002, 20003);
+insert into COMENZI (id_comanda, data, modalitate, id_angajat, id_client)
+values (210, to_timestamp('31/03/2015 19:02:58.000000', 'dd/mm/yyyy hh24:mi:ss.ff'), 'in magazin', 3003, 20004);
+insert into COMENZI (id_comanda, data, modalitate, id_angajat, id_client)
+values (211, to_timestamp('01/05/2019 16:43:15.000000', 'dd/mm/yyyy hh24:mi:ss.ff'), 'online', 3005, 20008);
+insert into COMENZI (id_comanda, data, modalitate, id_angajat, id_client)
+values (212, to_timestamp('27/12/2023 14:29:51.000000', 'dd/mm/yyyy hh24:mi:ss.ff'), 'online', 3012, 20006);
+
+insert into NUMERE_COMENZI (id_comanda, id_produs, pret, cantitate)
+values (201, 10001, 64, 1);
+insert into NUMERE_COMENZI (id_comanda, id_produs, pret, cantitate)
+values (202, 10003, 212, 4);
+insert into NUMERE_COMENZI (id_comanda, id_produs, pret, cantitate)
+values (203, 10009, 70, 2);
+insert into NUMERE_COMENZI (id_comanda, id_produs, pret, cantitate)
+values (204, 10011, 128, 2);
+insert into NUMERE_COMENZI (id_comanda, id_produs, pret, cantitate)
+values (205, 10005, 54, 2);
+insert into NUMERE_COMENZI (id_comanda, id_produs, pret, cantitate)
+values (206, 10003, 106, 2);
+insert into NUMERE_COMENZI (id_comanda, id_produs, pret, cantitate)
+values (207, 10007, 96, 4);
+insert into NUMERE_COMENZI (id_comanda, id_produs, pret, cantitate)
+values (208, 10001, 128, 2);
+insert into NUMERE_COMENZI (id_comanda, id_produs, pret, cantitate)
+values (209, 10002, 72, 3);
+insert into NUMERE_COMENZI (id_comanda, id_produs, pret, cantitate)
+values (210, 10008, 24, 1);
+insert into NUMERE_COMENZI (id_comanda, id_produs, pret, cantitate)
+values (211, 10012, 60, 1);
+insert into NUMERE_COMENZI (id_comanda, id_produs, pret, cantitate)
+values (212, 10004, 54, 2);
